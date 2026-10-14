@@ -1,11 +1,15 @@
-# XAUUSD: evidence and a testable first strategy
+# XAUUSD: revised gold scope and strategy evidence
+
+## Current strategy revision — October 14, 2026
+
+The user confirmed unnamed SH price signals are gold. All 359 non-crypto candidates now inform the strategy, including 357 with valid price ordering. Text versus user-confirmed labels are provenance, not different markets. Explicit BTC/ETH posts remain excluded. The current SH Gold Signals v4 rules add completed H1 direction, feed-day open and a classic previous-day pivot to the existing EMA/FVG pullback confirmation. Estimated net reward/risk must reach 1.5 before simulated entry or a REVIEW status. These are testable definitions inspired by SH, not a recovered proprietary formula or guaranteed profit. See [current rules](indicator/SH_STRATEGY.md) and [measured tests](indicator/SH_VALIDATION.md). Later first-proposal sections below are retained as the original research history, not current installation instructions.
 
 ## Executive Summary
 
 - **The statement is profitable overall, but the process is fragile.** Its 64 closed XAUUSDc trades show 40 wins and 24 losses and +233.9 USC (+$2.339). Before the last two trades, net P/L was -$8.02; two overlapping 1-cent-lot buys then earned $10.359. Their size and concentration make that recovery unsuitable as evidence of a repeatable edge.
 - **Fix exposure and loss controls first.** The statement records no SL on 43 trades and reconstructs a 59.9% maximum drawdown in closed-trade balance. This is not a measured mark-to-market equity drawdown, which may differ. Your next account is $10 with a $5 maximum total-loss limit; that maximum is a stop boundary, not a risk target.
 - **For manual trading on your phone and free TradingView, build one visual Pine indicator.** It should show confirmed setups, entry/SL/TP, price-feed identity and cent-aware risk. You check the chart and place trades in MT5 mobile. Free TradingView does not include custom technical alerts; a desktop MT5 notification setup is an optional later path, not required now.
-- **The entry idea remains untested.** The Telegram audit covers 5,411 ordinary messages, including 54 explicit gold candidates and 305 with unspecified instruments. The proposed M15 trend-pullback rules need intraday price testing. Neither your short statement nor Telegram TP claims proves that strategy profitable.
+- **All 359 non-crypto price candidates now inform the gold strategy.** The 305 unnamed signals are gold under your October 14 clarification; 357 of the 359 pass basic price-order checks. Current implementation and test evidence are in indicator/SH_STRATEGY.md and indicator/SH_VALIDATION.md. Neither Telegram TP claims nor exploratory chart backtests establish a profitable edge.
 
 ## Your statement shows fragile recovery and excessive exposure
 
@@ -29,31 +33,31 @@ Reconstructing balance from the $15 deposit and closed P/L, grouping simultaneou
 
 All six HTML pages were parsed. The unit counted is one ordinary Telegram message with a unique message ID; service messages such as date separators are excluded. The timestamps explicitly carry UTC+07:00, matching Cambodia. The earliest ordinary message is May 5, 2026 at 20:04:58; the latest is October 9 at 19:56:50.
 
-There are 3,798 messages with text and 3,381 with linked media; these groups overlap. Extraction found 359 candidates with one textual direction, an entry price or range, a stop and targets. Explicit BTC/ETH headings are excluded. Of these, 54 explicitly mention Gold/XAU, while 305 do not name the instrument. Image-only signals, Khmer-only instructions and ambiguous mixed-direction messages are outside this parser's scope.
+There are 3,798 messages with text and 3,381 with linked media; these groups overlap. Extraction found 359 gold candidates with one textual direction, an entry price or range, a stop and targets. The user confirmed on October 14, 2026 that the unnamed SH price signals are gold: 54 name Gold/XAU and 305 are included under that confirmation. Explicit BTC/ETH headings exist in the export and remain excluded; for example, message 608 explicitly says Short BTC at 61,100. Image-only signals, Khmer-only instructions and ambiguous mixed-direction messages are outside this parser's scope.
 
-**A zero in the explicit-gold series means the naming convention disappeared, not that the group stopped trading gold.** The additional cohort preserves that uncertainty instead of inferring the symbol from price. May and October are partial months, so counts should not be used to compare trading frequency directly. These are posted candidates, including reposts, not unique filled trades.
+**Both chart series are gold.** The series distinguish the source of the instrument label, not different markets. All 359 candidates inform the revised strategy; a zero in the text-labeled series is a naming change. May and October are partial months. These are posted candidates, including reposts, not unique filled trades.
 
 |month|instrument_status|signals|messages|
 |---|---|---|---|
-|2026-05|Explicit gold|37|346|
-|2026-05|Instrument unspecified|2|346|
-|2026-06|Explicit gold|15|1330|
-|2026-06|Instrument unspecified|60|1330|
-|2026-07|Explicit gold|2|1271|
-|2026-07|Instrument unspecified|75|1271|
-|2026-08|Explicit gold|0|1027|
-|2026-08|Instrument unspecified|68|1027|
-|2026-09|Explicit gold|0|1144|
-|2026-09|Instrument unspecified|82|1144|
-|2026-10|Explicit gold|0|293|
-|2026-10|Instrument unspecified|18|293|
+|2026-05|Gold: labeled in text|37|346|
+|2026-05|Gold: user-confirmed scope|2|346|
+|2026-06|Gold: labeled in text|15|1330|
+|2026-06|Gold: user-confirmed scope|60|1330|
+|2026-07|Gold: labeled in text|2|1271|
+|2026-07|Gold: user-confirmed scope|75|1271|
+|2026-08|Gold: labeled in text|0|1027|
+|2026-08|Gold: user-confirmed scope|68|1027|
+|2026-09|Gold: labeled in text|0|1144|
+|2026-09|Gold: user-confirmed scope|82|1144|
+|2026-10|Gold: labeled in text|0|293|
+|2026-10|Gold: user-confirmed scope|18|293|
 
 
 ## Multiple targets make a TP count misleading
 
-All 54 explicit gold candidates pass a basic direction/price-order check. Of those, 51 have multiple targets and five have entry ranges. Ten contain the word 'limit', showing that arrival at entry matters; a move to TP before entry is reached is not a winning filled trade.
+Of all 359 gold candidates, 357 pass basic direction/price-order checks. Among those, 348 have multiple targets and 17 have entry ranges. Arrival at a limit entry matters; a move to TP before entry is reached is not a winning filled trade. The two invalid instructions remain flagged.
 
-For this cohort, median stop distance is **12 gold price dollars per ounce**, with a range of 5–30. Median first-target reward/risk is **1.0R**; median last-target reward/risk is **2.0R**. R is the original entry-to-stop price distance. For ranges, these descriptive calculations use the first quoted entry endpoint, not an assumed actual fill. They exclude costs and do not describe achieved returns.
+Across the 357 geometrically ordered gold candidates, median stop distance is **15 gold price dollars per ounce**, with a range of 2–212 (the 212-dollar stop remains flagged). Median first-target reward/risk is **1.0R**; median last-target reward/risk is **1.857R**. R is the original entry-to-stop price distance. For ranges, these descriptive calculations use the first quoted entry endpoint, not an assumed actual fill. They exclude costs and do not describe achieved returns. The former 54-message text-labeled subset had a $12 stop and 2R final-target median; it no longer defines the strategy's evidence population.
 
 For example, message 9 posts a buy at 4550, SL 4535 and targets 4565/4580. These represent 1R and 2R. Taking half off at each would earn 1.5R on a full winner; taking half at 1R and stopping the rest at entry earns only 0.5R before costs. The export does not consistently specify these allocations or the timing of stop changes.
 
@@ -61,7 +65,7 @@ For example, message 9 posts a buy at 4550, SL 4535 and targets 4565/4580. These
 
 ## The extracted entries remain traceable to the export
 
-The table is the first ten chronologically ordered explicit gold candidates, with original message IDs. It shows planned prices and gross target geometry. It is an audit sample, not a performance sample. Open the corresponding message ID in its original HTML page to inspect the text and context; the full extracted candidate list is saved in signals.csv.
+The table is the first ten chronologically ordered valid gold candidates across both label origins, with original message IDs. It shows planned prices and gross target geometry. It is an audit sample, not a performance sample. Open the corresponding message ID in its original HTML page to inspect the text and context; the full extracted candidate list is saved in signals.csv.
 
 |id|timestamp|side|entry|sl|tp|first_target_R|final_target_R|
 |---|---|---|---|---|---|---|---|
@@ -117,7 +121,7 @@ Under that assumption, at 0.01 cent lot, a $1 move in gold is about $0.01 in acc
 | 1% | $0.10 | 10 USC | $10 |
 | 2% — illustration, not a recommendation | $0.20 | 20 USC | $20 |
 
-The explicit gold cohort's median $12 stop would not fit a 1% budget at minimum volume. A conservative 0.5% research budget is likely to suppress many setups at this capital. **Do not increase risk or tighten a technical stop just to get a trade.** Your stated maximum total loss is $5, or 500 USC. For a fresh $10 account with no additional deposits/withdrawals, stop at $5 equity or sooner if the process fails. My proposed initial per-trade ceiling is $0.10 (10 USC, 1% of starting capital), reduced as equity falls; typical $12 stops may therefore require skipping the setup at minimum size. This is a proposed learning rule, not evidence that live trading has a positive expected return.
+The full gold cohort's median $15 stop would not fit a 1% budget at minimum volume. A conservative 0.5% research budget is likely to suppress many setups at this capital. **Do not increase risk or tighten a technical stop just to get a trade.** Your stated maximum total loss is $5, or 500 USC. For a fresh $10 account with no additional deposits/withdrawals, stop at $5 equity or sooner if the process fails. My proposed initial per-trade ceiling is $0.10 (10 USC, 1% of starting capital), reduced as equity falls; typical $15 stops may therefore require skipping the setup at minimum size. This is a proposed learning rule, not evidence that live trading has a positive expected return.
 
 For a future sizing display, calculate expected loss in account currency from the terminal's actual profit calculation, include costs, and round volume down to its allowed step. Skip a trade that cannot fit minimum volume or margin. Leverage reduces margin requirements, not price-loss exposure. Avoid splitting a minimum-size trade into multiple targets, martingale, averaging down or trying to turn $10 into income.
 

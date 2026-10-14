@@ -2,4 +2,4 @@ Report plan: executive summary; personal trade evidence and closed-balance curve
 Monthly grouped bars use 12 rows, six discrete calendar periods and two instrument-label cohorts; a chronological category comparison rather than a six-point continuous trend. Count axis starts at zero; legend names the cohorts. Geometric medians are exact-text descriptive measures, not P/L.
 Closed-balance chart: line with one chronological statement-time axis and one USD value axis, no redundant legend; 51 rows from initial deposit through final trade close. Single blue-root default, direct axis labels. Floating P/L unavailable; withdrawal excluded. It describes historical closed-account performance, not a test of the proposed strategy. All printed closed P/L and balance totals reconcile exactly in USC; per-trade price/exposure verification allows 0.15 USC printed rounding tolerance.
 Renderer output must be validated before handoff.
-Source folder: C:\Users\jpkim\OneDrive\SB Documents\SH Data
+Source folder: C:\Users\Por\Downloads\Telegram Desktop\SH Data

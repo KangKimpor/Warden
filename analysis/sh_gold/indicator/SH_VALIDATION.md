@@ -1,4 +1,39 @@
-# SH Gold Signals v3 validation — October 14, 2026
+# SH Gold Signals v4 validation — October 14, 2026
+
+## Scope correction and evidence
+
+All **359 non-crypto price candidates** now form the gold evidence population: 54 explicitly labeled gold and 305 unnamed signals confirmed by the user on October 14. The labels record provenance only. **357** pass price ordering, with median first target **1R**, final target **1.857R** and stop **$15/oz**. The two invalid instructions (4895 and 5106) and unusually wide stop (4774) remain flagged. Explicit BTC/ETH posts are preserved and excluded from gold; message 608 explicitly quotes BTC at 61,100.
+
+The current local SH Data folder's six HTML hashes exactly match the prior inventory. The originals were read without modification. The parser, CSV, JSON, SQLite tables, notebook and report were regenerated consistently; candidate IDs, prices and original message text are unchanged. Counts, cohort medians and crypto exclusion were independently reconciled, and the statement's 51-row closed-balance table was preserved. CSV source text contains original trailing spaces, so whitespace QA excludes that evidence file rather than rewriting quotations.
+
+Four additional linked charts were visually reviewed (messages 1650, 2938, 5610, 5670); evidence is in `sh_evidence.json`. They show OP/pivot context, bearish pullback zones, higher-timeframe sell direction and M15 bullish structure/BOS. Classic daily pivot and H1 EMA20/50 are objective research proxies, not recovered proprietary CRAZII or SH formulas.
+
+## Implementation verification
+
+V4 was saved privately in TradingView, compiled in Pine v6 and run on standard OANDA:XAUUSD M5 and M15. The editor's full source was copied back and exactly matched the local file after newline normalization. First-bar sizing, budget, zone, session, confirmation, cooldown, direction and net-R self-checks passed without a runtime error. Code/document whitespace checks passed. The existing layout was saved on M5 with RSI retained and simulated fill markers hidden; BUY/SELL candidate labels, levels, expiry and the new estimated net-R row remain visible. The original private v3 script remains available.
+
+The new BUY/SELL candidates require completed H1 direction and alignment with the feed-day open and classic prior-day pivot. H1 close/EMAs and prior daily H/L/C use one-bar offsets with `lookahead_on`; only the daily open uses the already-known current value. A 1.5 estimated net-R threshold blocks simulated entries and REVIEW when costs leave too little planned payoff. The cost floor is $0.50/oz consistently in display and simulation. Other sizing, exposure and daily limits remain unchanged. These checks measure alignment and payoff geometry, not the probability of reaching TP.
+
+## Fixed-rule exploratory tests
+
+| Chart | Report range shown | Candidates | Static $10 size + net-R eligible | Closed trades | Net P/L shown | Win rate | Profit factor | Max drawdown shown |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| M5 | September 14–October 14 | 71 (58 EMA, 13 FVG) | 49 | 26 | −$0.03 / −0.31% | 34.62% (9/26) | 0.976 | $0.35 / 3.45% |
+| M15 | July 1–October 14 | 120 (93 EMA, 27 FVG) | 21 | 15 | −$0.69 / −6.85% | 13.33% (2/15) | 0.308 | $0.83 / 8.16% |
+
+Observed around **19:10–19:13 Cambodia time**, default $10 simulation and $0.25/oz/side cost proxy. M5's latest simulated short entered October 14 at 17:30 and closed at its SL at 19:05; the final M5 table shows no open trade. Unlike the earlier v3 M5 snapshot, these M5 figures are closed-trade results. The prior v3 M5 snapshot showed $0.81 drawdown versus v4's $0.35; v3's P/L included an open trade and was captured earlier, so it is not a matched closed-return comparison.
+
+Both variants were tested with the rules fixed before inspecting their results. No threshold search or repeated profit optimization was performed. Candidates are not filled orders; static eligibility does not apply changing equity, day limits or fill conditions. Report dates describe selected/available chart history, not complete broker tick coverage. These tests evaluate the mechanical hypothesis, not a replay of all 359 Telegram instructions. The two timeframes have different histories and cannot be compared as equal-period returns.
+
+**Profitability gate: not passed.** M5 is approximately breakeven with a small loss after the modeled costs; M15 loses money. Lower drawdown does not establish positive expectancy. V4 identifies aligned setups with potential reward, but cannot identify guaranteed profitable entries. Keep it in demo/research until unseen-period and forward results establish an edge after actual costs.
+
+Phone operation, actual Exness fills, measured spreads, financing/swap, news filters and tick/slippage behavior remain unverified. Expiry status updates on chart execution/live ticks; manually check the displayed expiry if quotes are quiet. Script alerts compile but delivery is unavailable on Basic and was not tested. Simulated account guards cannot enforce actual MT5 exposure or daily losses.
+
+Final v4 source SHA-256: `3fdb1cbc57bc906454d51ea45bbefeb491e214ed6fce9bd661f96c52a7b11741`.
+
+---
+
+# SH Gold Signals v3 validation — October 14, 2026 (archive)
 
 V3 was saved privately in the existing TradingView account, reopened after a browser refresh, compiled with Pine v6, and run on ordinary **OANDA:XAUUSD M15 and M5**. It replaces the chart's v2 instance; the private v2 script remains available. The existing layout was saved on M5 with RSI retained. Style → Trades on chart was disabled to hide simulated fill markers while keeping BUY/SELL candidate labels and the price panel. The Pine first-bar sizing, budget, zone, confirmation-window, cooldown and Cambodia-session checks ran without a runtime error. `git diff --check` passed.
 

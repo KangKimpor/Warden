@@ -3,9 +3,9 @@ from html.parser import HTMLParser
 from pathlib import Path
 from datetime import datetime
 from collections import Counter
-import csv, hashlib, json, re, statistics, sqlite3
+import csv, hashlib, json, re, statistics, sqlite3, sys
 
-SOURCE = Path(r'C:\Users\jpkim\OneDrive\SB Documents\SH Data')
+SOURCE = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.home() / 'Downloads' / 'Telegram Desktop' / 'SH Data'
 OUT = Path(__file__).parent
 
 class Node:
@@ -59,7 +59,9 @@ def signal(text):
     side = next(iter(direction)) if len(direction)==1 else ''
     complete = bool(candidate and entry and len(sl)==1 and tp)
     valid = complete and (sl[0]<min(entry) and max(entry)<min(tp) if side=='buy' else max(tp)<min(entry) and max(entry)<sl[0])
-    return dict(candidate=bool(candidate), instrument='explicit_gold' if gold else 'unspecified', side=side, entry=entry, sl=sl, tp=tp,
+    # User confirmed the unnamed SH price signals are gold; preserve explicit crypto exclusions.
+    instrument = 'explicit_crypto' if crypto else 'explicit_gold' if gold else 'user_confirmed_gold' if candidate else 'unclassified'
+    return dict(candidate=bool(candidate), instrument=instrument, side=side, entry=entry, sl=sl, tp=tp,
                 complete=bool(complete), valid=bool(valid),
                 risk=abs(entry[0]-sl[0]) if valid else None,
                 reward=abs(tp[0]-entry[0]) if valid else None,
@@ -73,7 +75,9 @@ def self_check():
     assert signal('Buy Gold Entry: 4580\nSL: 4595\nTP: 4600')['valid'] is False
     assert signal('Buy Gold Entry: 4580-4585\nSL: 4570\nTP: 4600')['valid']
     assert signal('Short Now 4580\nSL: 4595\nTP: 4565 - 4560 - 4550')['tp']==[4565,4560,4550]
+    assert signal('Short Now 4580\nSL: 4595\nTP: 4565')['instrument']=='user_confirmed_gold'
     assert signal('Short BTC Entry: 90000 SL: 91000 TP: 88000')['candidate'] is False
+    assert signal('Short BTC Entry: 90000 SL: 91000 TP: 88000')['instrument']=='explicit_crypto'
     assert signal('Buy BTC Entry: 90000 SL: 89000 TP: 92000')['candidate'] is False
     assert numbers(r'\bentry','Entry: 4,580.50') == [4580.5]
     assert signal('Close at TP 1\nShort 4145\nSL: 4160\nTP: 4130 - 4125')['tp']==[4130,4125]
@@ -129,7 +133,8 @@ def main():
         reply_tp_mentions=sum(m['reply_tp_mention'] for m in signals),reply_sl_mentions=sum(m['reply_sl_mention'] for m in signals),
         no_direct_reply=sum(not m['direct_reply_ids'] for m in signals),
         explicit_gold=sum(m['instrument']=='explicit_gold' for m in signals),
-        unspecified=sum(m['instrument']=='unspecified' for m in signals),
+        user_confirmed_gold=sum(m['instrument']=='user_confirmed_gold' for m in signals),
+        instrument_scope='All 359 non-crypto price candidates are XAUUSD: 54 explicit, 305 confirmed by user on 2026-10-14. Explicit BTC/ETH posts retain their exclusion.',
         review_flags={m['id']:m['review_flags'] for m in signals if m['review_flags']},
         entry_ranges=sum(len(m['entry'])>1 for m in valid),multiple_targets=sum(len(m['tp'])>1 for m in valid),
         rr=quant([m['rr'] for m in valid]),rr_final=quant([m['rr_final'] for m in valid]),risk=quant([m['risk'] for m in valid]),reward=quant([m['reward'] for m in valid]),

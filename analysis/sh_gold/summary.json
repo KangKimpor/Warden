@@ -1,5 +1,5 @@
 {
-  "source": "C:\\Users\\jpkim\\OneDrive\\SB Documents\\SH Data",
+  "source": "C:\\Users\\Por\\Downloads\\Telegram Desktop\\SH Data",
   "inventory": [
     {
       "file": "messages.html",
@@ -48,7 +48,8 @@
   "reply_sl_mentions": 5,
   "no_direct_reply": 325,
   "explicit_gold": 54,
-  "unspecified": 305,
+  "user_confirmed_gold": 305,
+  "instrument_scope": "All 359 non-crypto price candidates are XAUUSD: 54 explicit, 305 confirmed by user on 2026-10-14. Explicit BTC/ETH posts retain their exclusion.",
   "review_flags": {
     "2432": [
       "unusual_first_target_check_source"
