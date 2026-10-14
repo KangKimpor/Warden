@@ -1,4 +1,36 @@
-# SH Gold Signals v2 validation — October 14, 2026
+# SH Gold Signals v3 validation — October 14, 2026
+
+V3 was saved privately in the existing TradingView account, reopened after a browser refresh, compiled with Pine v6, and run on ordinary **OANDA:XAUUSD M15 and M5**. It replaces the chart's v2 instance; the private v2 script remains available. The existing layout was saved on M5 with RSI retained. Style → Trades on chart was disabled to hide simulated fill markers while keeping BUY/SELL candidate labels and the price panel. The Pine first-bar sizing, budget, zone, confirmation-window, cooldown and Cambodia-session checks ran without a runtime error. `git diff --check` passed.
+
+The frequency change is an eight-hour FVG zone lifetime, confirmation on the touch candle or next three candles, plus EMA20–EMA50 trend pullbacks. A three-candle cooldown merges nearby candidates. M5 uses a five-minute next-candle entry window; M15 retains fifteen minutes. Signals still require candle close. Every-tick calculation updates the live expiry panel without enabling intrabar entries.
+
+## Observed chart tests
+
+Default simulation: $10 initial equity, $0.10 maximum / 1% equity risk, $0.50 per ounce round-trip cost proxy, $0.20 daily losing-P/L allowance, two order attempts per Cambodia day, one position and $5 new-entry equity floor. The size-guide equity input does not set simulated initial capital.
+
+| Version / chart | Report range shown | Technical candidates | Fit a static $10 budget | Closed trades | Total P/L shown | Win rate | Profit factor | Max drawdown shown |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| V2 M15, rerun unchanged | July 1–October 14 | 4 | 0 | 0 | No trades | — | — | — |
+| V3 M15 | July 1–October 14 | 135 (104 EMA, 31 FVG) | 23 | 17 | −$0.84 / −8.40% | 11.76% (2/17) | 0.266 | $0.98 / 9.69% |
+| V3 M5 | September 14–October 14 | 124 (99 EMA, 25 FVG) | 90 | 38 | About +$0.37 / +3.68% | 39.47% (15/38) | 1.199 | $0.81 / 7.44% |
+
+The M5 snapshot was taken around **18:48 Cambodia time**, with **one additional open simulated short** entered at 17:30. Total P/L includes its changing unrealized P/L, so it is not a final closed-trade result. Closed gross profit/loss were displayed as $2.04 / $1.70 (rounded). The two timeframes have different loaded-history ranges and cannot be compared as equal-period returns. Report ranges describe history available to the chart, not broker tick data. Counts are technical candidates; static $10 affordability ignores changing simulated equity, daily loss, order limits and fill eligibility. Neither count is a count of real trades.
+
+The latest M5 candidate observed was a SELL on the **18:25–18:30** candle: entry 4139.265, SL 4144.259, stop distance 4.994, estimated 0.01 cent lot at the static $10 budget. It expired at **18:35**. Logs prefix the candle-open timestamp, so add five or fifteen minutes for confirmation time.
+
+**More signals were achieved: M15 increased from 4 to 135 candidates in the same displayed period. Profitability was not established.** M15 lost money; M5's small, partly unrealized gain is insufficient evidence of an edge. Treat both as demo research. No parameters were selected by repeatedly optimizing profit, and no live broker order was submitted.
+
+## Alerts and limitations
+
+`alert()` calls compile and contain direction, feed, timeframe, setup type, entry/SL/TP and Cambodia expiry. Events are emitted only at candle close. Actual delivery was not tested: TradingView Basic offers price alerts, not custom script alerts. No technical alert or paid plan was activated. The manual price-alert procedure is in `SH_STRATEGY.md`; price reminders do not follow EMA values or prove a BUY/SELL candidate exists. Phone delivery and physical-phone layout remain unverified.
+
+No actual Exness fills, measured spread, swap, tick/slippage reconstruction, news filtering, unseen-period validation or forward demo results are available. Simulated guards cannot enforce account limits in MT5. Default costs and margin remain illustrative assumptions. Existing Telegram exports, statements and their analysis were not modified by this update.
+
+Final v3 source SHA-256: `0b21d0076ac10125a0fd2ecfa979a0d98892655cdc39754529e66d0d8af7e6d2`.
+
+---
+
+# SH Gold Signals v2 validation — October 14, 2026 (archive)
 
 Saved privately in the existing TradingView account as **SH Gold Signals v2**, reopened through My scripts after refresh, and accepted by Pine v6. It runs on ordinary **OANDA:XAUUSD M15**. Existing RSI remains. The original Gold Cent Guard script is preserved. No broker connection, actual order, paid plan or public publication was created.
 
