@@ -1,4 +1,31 @@
-# SH Gold Signals v4 validation — October 14, 2026
+# SH Gold Signals v5 validation — October 14, 2026
+
+## Late entry and wide-stop correction
+
+The supplied screenshot shows a SELL tag at the high of a large bearish candle. V4 confirmed only after close, used that close as its limit price, and drew the tag at the high. This presentation implied an earlier entry, while the close-to-swing stop could be large. V5 uses a next-candle retest limit at the previous high (BUY) or low (SELL), places the label at that exact planned entry on the following candle, and states the order type and price. This is a plan, not a claimed fill or an intrabar prediction.
+
+The shared candidate guard rejects wrong-side limits/stops, confirmation ranges over 2 times prior ATR(14), stops over 1.5 times prior ATR, and stops over the configured dollar cap (default $5/oz). Original swing/zone stops remain intact; no stop is tightened merely to fit the cap. Both visuals and simulated orders use the same accepted entry and stop. At default settings TP1 is at most $5/oz away and TP2 at most $10/oz away. These caps are proposed practical bounds, not optimized or recovered SH parameters.
+
+The panel names the chart feed and the user's stated XAUUSDc cent symbol, shows dollar-per-ounce distances separately from exact tick prices, and blocks new-entry review once the chart has touched the limit or reached TP1 during its next-candle window. A chart touch does not verify a broker fill. Existing size, estimated net-R, account and session guards remain in place. Gray SKIP labels fail static size/cost eligibility. Historical labels still do not enforce actual MT5 account limits.
+
+## Verification and exploratory results
+
+V5 compiled privately in Pine v6 on standard OANDA:XAUUSD M5 and M15. The saved editor source was copied back and exactly matched the local file after newline normalization. First-bar checks passed for sizing, budgets, zones, session, direction, reward and both limit sides, including rejection of a 20-point spike against 3-point prior ATR, excessive stops, wrong-side stops/limits and missing volatility. The chart feed's tick precision is retained. Source/doc whitespace checks passed. The existing layout was saved on M5 with v5, explicit limit-price markers and the new feed/distance rows; simulated trade markers are hidden. The private v4 copy remains available.
+
+| Chart | Report range shown | Accepted plans | Static $10 size + net-R eligible | Rejected late/wide/invalid confirmations | Closed trades | Net P/L | Win rate | Profit factor | Max drawdown |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| M5 | September 14–October 14 | 35 (32 EMA, 3 FVG) | 31 | 42 | 13 | +$0.23 / +2.25% | 46.15% (6/13) | 1.376 | $0.32 / 3.16% |
+| M15 | July 1–October 14 | 10 (9 EMA, 1 FVG) | 10 | 130 | 4 | +$0.16 / +1.63% | 50.00% (2/4) | 2.515 | $0.07 / 0.67% |
+
+Observed around 21:03–21:05 Cambodia time with $10 initial capital, the default $5 stop cap and $0.25/oz/side commission proxy. Both trade lists show closed latest trades and no open trade. For example, M5's October 14 15:25 candle generated the short plan at its 15:30 close; the simulator entered on the 15:30 candle at 4150.395 and exited at 15:55. M15's October 13 13:45 confirmation generated the plan at 14:00; its simulated entry is on the 14:00 candle. The limit is not filled retrospectively on its confirmation candle.
+
+The rules were fixed before viewing returns; no profit-driven threshold search was performed. Rejected confirmations do not start the accepted-signal cooldown, so these counts are not a one-to-one partition of v4 candidates. A label is not a fill; an unfilled limit expires after one candle and still consumes a simulated daily order attempt. The reported periods differ between timeframes, prices use TradingView's assumed intrabar paths rather than broker ticks, and the cost allowance is not a measured spread. Only 17 trades across unequal periods is insufficient to establish an edge. **Profitability gate remains unproven: demo/research only pending unseen-period and forward execution evidence.**
+
+Final v5 source SHA-256: `7b496cf0a942f6be22ec63333f466b7515afac818baa14b88cd5355f4ab2fd6d`.
+
+---
+
+# SH Gold Signals v4 validation — October 14, 2026 (archive)
 
 ## Scope correction and evidence
 

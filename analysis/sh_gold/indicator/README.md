@@ -1,6 +1,6 @@
 # Gold Cent Guard v1 (archive)
 
-The current SH-based version is **SH Gold Signals v4**, for M5 or M15, using all 359 gold candidates, completed H1 direction, feed-day open/pivot context and a net reward/risk check. See [SH_STRATEGY.md](SH_STRATEGY.md) for installation, exact rules, free-plan price reminders and risk limits, and [SH_VALIDATION.md](SH_VALIDATION.md) for test evidence. Version 1 below is retained as an archive.
+The current SH-based version is **SH Gold Signals v5**, for M5 or M15, with explicit retest limit markers, exact feed/symbol display, and oversized-candle/stop rejection (default maximum SL $5/oz). It retains the 359 gold candidates as evidence, H1 and daily context, and the net reward/risk check. See [SH_STRATEGY.md](SH_STRATEGY.md) for installation, exact rules, free-plan price reminders and risk limits, and [SH_VALIDATION.md](SH_VALIDATION.md) for test evidence. Version 1 below is retained as an archive.
 
 A private TradingView Pine v6 indicator for manual XAUUSDc trading practice. It does not place orders, monitor Exness, enforce account limits in MT5, or claim profitability.
 
