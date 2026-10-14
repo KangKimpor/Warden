@@ -1,0 +1,11 @@
+{
+  "row_count": 166,
+  "fields": [
+    "date",
+    "price"
+  ],
+  "unique_dates": 166,
+  "weekend_rows": 48,
+  "suitable_for_M15_replay": false,
+  "intraday_attempt": "Alpha Vantage FX_INTRADAY XAU/USD 15min returned a premium-access error; symbol support not established."
+}

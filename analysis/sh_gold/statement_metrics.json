@@ -1,0 +1,150 @@
+{
+  "pdf_pages": 3,
+  "pdf_sha256": "c17dc1ce6329d686a69a16cc461ef0b83cc8b0c2bc59798fc1485e07daddbeca",
+  "statement_period": "2026-08-06 through 2026-10-14",
+  "actual_trading_dates": [
+    "2026-08-10",
+    "2026-08-19"
+  ],
+  "timezone": "not specified in statement",
+  "closed_trades": 64,
+  "wins": 40,
+  "losses": 24,
+  "win_rate": 0.625,
+  "net_usc": 233.9,
+  "net_usd": 2.339,
+  "deposit_usd": 15,
+  "withdrawal_usd": 17.33,
+  "closing_balance_usd": 0.009,
+  "cancelled_pending_orders": 5,
+  "gross_profit_usd": 18.036,
+  "gross_loss_usd": 15.697,
+  "profit_factor": 1.149009364846786,
+  "mean_win_usd": 0.4509,
+  "mean_loss_usd": 0.6540416666666666,
+  "median_win_usd": 0.051500000000000004,
+  "median_loss_usd": 0.618,
+  "no_recorded_sl": 43,
+  "no_recorded_sl_tp": 36,
+  "holding_seconds_median": 131.0,
+  "under_60_seconds": 22,
+  "volume_distribution": {
+    "0.05": 8,
+    "0.01": 1,
+    "0.1": 29,
+    "0.2": 24,
+    "1.0": 2
+  },
+  "max_simultaneous_positions": 6,
+  "max_gross_cent_lots": 2.0,
+  "max_exposure_at": "2026-08-19T07:14:31",
+  "last_two_profit_usd": 10.359,
+  "net_without_last_two_usd": -8.02,
+  "gross_profit_share_last_two": 0.5743512974051895,
+  "last_two": [
+    {
+      "sequence": 63,
+      "position_id": "3902903786",
+      "side": "buy",
+      "opened": "2026-08-19T07:06:17",
+      "closed": "2026-08-19T07:25:31",
+      "open_price": 4349.007,
+      "volume_cent_lots": 1.0,
+      "close_price": 4355.018,
+      "close_volume": 1.0,
+      "recorded_sl": 0.0,
+      "recorded_tp": 4355.018,
+      "commission_usc": 0.0,
+      "tax_usc": 0.0,
+      "swap_usc": 0.0,
+      "profit_usc": 601.1,
+      "profit_usd": 6.011,
+      "holding_seconds": 1154.0
+    },
+    {
+      "sequence": 64,
+      "position_id": "3902956869",
+      "side": "buy",
+      "opened": "2026-08-19T07:14:31",
+      "closed": "2026-08-19T07:25:31",
+      "open_price": 4350.674,
+      "volume_cent_lots": 1.0,
+      "close_price": 4355.022,
+      "close_volume": 1.0,
+      "recorded_sl": 0.0,
+      "recorded_tp": 4355.022,
+      "commission_usc": 0.0,
+      "tax_usc": 0.0,
+      "swap_usc": 0.0,
+      "profit_usc": 434.8,
+      "profit_usd": 4.348,
+      "holding_seconds": 660.0
+    }
+  ],
+  "maximum_closed_balance_drawdown_usd": 10.424,
+  "maximum_closed_balance_drawdown_rate": 0.598942771776603,
+  "minimum_closed_balance_usd": 6.98,
+  "august11_21minute_entries": 20,
+  "august19_same_close_loss_usd": -4.813,
+  "august19_same_close_positions": 5,
+  "daily": [
+    {
+      "day": "2026-08-10",
+      "trades": 4,
+      "wins": 3,
+      "losses": 1,
+      "net_usd": 0.223,
+      "no_recorded_sl": 0
+    },
+    {
+      "day": "2026-08-11",
+      "trades": 26,
+      "wins": 19,
+      "losses": 7,
+      "net_usd": -0.102,
+      "no_recorded_sl": 21
+    },
+    {
+      "day": "2026-08-12",
+      "trades": 9,
+      "wins": 6,
+      "losses": 3,
+      "net_usd": 0.156,
+      "no_recorded_sl": 2
+    },
+    {
+      "day": "2026-08-13",
+      "trades": 2,
+      "wins": 1,
+      "losses": 1,
+      "net_usd": 0.994,
+      "no_recorded_sl": 0
+    },
+    {
+      "day": "2026-08-14",
+      "trades": 12,
+      "wins": 5,
+      "losses": 7,
+      "net_usd": -4.573,
+      "no_recorded_sl": 9
+    },
+    {
+      "day": "2026-08-18",
+      "trades": 3,
+      "wins": 3,
+      "losses": 0,
+      "net_usd": 0.085,
+      "no_recorded_sl": 3
+    },
+    {
+      "day": "2026-08-19",
+      "trades": 8,
+      "wins": 3,
+      "losses": 5,
+      "net_usd": 5.556,
+      "no_recorded_sl": 8
+    }
+  ],
+  "all_explicit_charges_zero": true,
+  "cent_gold_ounce_exposure_confirmed_by_all_printed_trade_price_pnl_pairs": true
+}

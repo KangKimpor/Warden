@@ -1,0 +1,14 @@
+{
+  "source_sha256": "824d17a8af41f3fdee42901f0ed23b61ebab9192253311f3c4ca52bc2ef17302",
+  "bytes": 4994,
+  "lines": 63,
+  "currency": "USC",
+  "reported_balance": 0,
+  "history_response_counts": [
+    0,
+    0
+  ],
+  "completed_trade_records_present": false,
+  "timestamp_timezone": "not specified",
+  "notes": "Application activity log, not a completed-deal trading statement. Zero records in this short log do not establish lifetime trade history."
+}

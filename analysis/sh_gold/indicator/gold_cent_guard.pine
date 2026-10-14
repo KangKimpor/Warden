@@ -1,0 +1,128 @@
+//@version=6
+indicator("Gold Cent Guard v1 - Manual M15", shorttitle="Gold Cent Guard", overlay=true)
+
+equityUSC = input.float(1000, "Current equity (USC, update manually)", minval=0)
+dayLossUSC = input.float(0, "Loss used today (USC, update manually)", minval=0)
+tradesToday = input.int(0, "Trades taken today (update manually)", minval=0)
+positionOpen = input.bool(false, "I already have an open position")
+mt5Quote = input.float(0, "Current MT5 entry quote (BUY ask / SELL bid)", minval=0)
+costReserve = input.float(0, "Extra slippage/cost reserve ($ per ounce)", minval=0)
+newsSafe = input.bool(false, "I checked: no restricted USD news now")
+
+// One XAUUSDc cent lot represents one ounce in the supplied statement.
+sizeFor(float entry, float stop, float budgetUSD, float extraCost) =>
+    float distance = math.abs(entry - stop)
+    float lots = entry > 0 and stop > 0 and distance > 0 and budgetUSD > 0 ? math.floor(budgetUSD / (distance + extraCost) / 0.01) * 0.01 : 0
+    [lots, lots * (distance + extraCost)]
+
+budgetFor(float equity, float dayLoss) =>
+    math.max(0, math.min(10, equity * 0.01, equity - 500, 20 - dayLoss)) / 100
+
+inSession(int stamp) =>
+    int weekday = dayofweek(stamp, "Asia/Phnom_Penh")
+    int localHour = hour(stamp, "Asia/Phnom_Penh")
+    weekday >= dayofweek.monday and weekday <= dayofweek.friday and localHour >= 14 and localHour < 23
+
+money(float usd) =>
+    "$" + str.tostring(usd, "0.000") + " / " + str.tostring(usd * 100, "0.0") + " USC"
+
+if barstate.isfirst
+    [testLots, testRisk] = sizeFor(100, 95, 0.10, 0.50)
+    [tooSmall, unusedRisk] = sizeFor(100, 88, 0.10, 0.50)
+    [zeroStopLots, zeroStopRisk] = sizeFor(100, 100, 0.10, 0.50)
+    bool sizingOK = math.abs(testLots - 0.01) < 0.0000001 and math.abs(testRisk - 0.055) < 0.0000001 and tooSmall == 0 and zeroStopLots == 0
+    bool budgetsOK = math.abs(budgetFor(1000, 0) - 0.10) < 0.0000001 and budgetFor(500, 0) == 0 and math.abs(budgetFor(900, 19) - 0.01) < 0.0000001
+    bool sessionOK = inSession(timestamp("Asia/Phnom_Penh", 2026, 10, 16, 14, 0)) and not inSession(timestamp("Asia/Phnom_Penh", 2026, 10, 16, 23, 0)) and not inSession(timestamp("Asia/Phnom_Penh", 2026, 10, 17, 14, 0))
+    if not (sizingOK and budgetsOK and sessionOK)
+        runtime.error("Risk/session self-check failed. Do not use this script.")
+
+ema20 = ta.ema(close, 20)
+ema50 = ta.ema(close, 50)
+ema200 = ta.ema(close, 200)
+atr14 = ta.atr(14)
+low5 = ta.lowest(low, 5)
+high5 = ta.highest(high, 5)
+
+isGold = str.contains(str.upper(syminfo.ticker), "XAUUSD") and not str.contains(syminfo.ticker, "247") and syminfo.currency == "USD"
+isM15 = timeframe.isminutes and timeframe.multiplier == 15
+chartOK = isGold and isM15 and chart.is_standard
+warm = bar_index >= 200 and not na(atr14)
+pullback = low[1] <= math.max(ema20[1], ema50[1]) and high[1] >= math.min(ema20[1], ema50[1])
+longTrend = ema20 > ema50 and ema50 > ema200 and ema50 > ema50[1]
+shortTrend = ema20 < ema50 and ema50 < ema200 and ema50 < ema50[1]
+longSetup = chartOK and warm and barstate.isconfirmed and inSession(time_close) and pullback and longTrend and close > open and close > ema20 and close > high[1]
+shortSetup = chartOK and warm and barstate.isconfirmed and inSession(time_close) and pullback and shortTrend and close < open and close < ema20 and close < low[1]
+
+var int setupSide = 0
+var int setupClosed = na
+var float setupStop = na
+var float setupEntry = na
+if longSetup or shortSetup
+    setupSide := longSetup ? 1 : -1
+    setupClosed := time_close
+    setupEntry := close
+    setupStop := longSetup ? math.floor((low5 - 0.2 * atr14) / syminfo.mintick) * syminfo.mintick : math.ceil((high5 + 0.2 * atr14) / syminfo.mintick) * syminfo.mintick
+
+// shortcut: no broker/news connection; refresh manual checks for each candidate before using the display.
+fresh = not na(setupClosed) and timenow >= setupClosed and timenow < setupClosed + 15 * 60 * 1000 and inSession(timenow)
+entry = mt5Quote > 0 ? mt5Quote : setupEntry
+stopOK = not na(setupStop) and not na(entry) and (setupSide == 1 ? setupStop < entry : setupStop > entry)
+budgetUSD = budgetFor(equityUSC, dayLossUSC)
+[lots, riskUSD] = sizeFor(nz(entry), nz(setupStop), budgetUSD, costReserve)
+costOK = stopOK and costReserve > 0 and costReserve <= math.abs(entry - setupStop) * 0.10
+target = stopOK ? entry + setupSide * 2 * math.abs(entry - setupStop) : na
+status = "WAIT: no fresh setup"
+if not chartOK
+    status := "USE XAUUSD, 15m, candles"
+else if not warm
+    status := "WAIT: 200 bars needed"
+else if equityUSC <= 500
+    status := "STOP: $5 equity floor"
+else if dayLossUSC >= 20 or tradesToday >= 2
+    status := "STOP: daily limit"
+else if positionOpen
+    status := "WAIT: position already open"
+else if fresh
+    if not newsSafe
+        status := "CHECK USD NEWS"
+    else if mt5Quote <= 0
+        status := "ENTER MT5 ASK / BID"
+    else if not stopOK
+        status := "SKIP: quote crossed stop"
+    else if not costOK
+        status := "CHECK COST RESERVE (<=10% R)"
+    else if lots < 0.01 or riskUSD > budgetUSD + 0.0000001
+        status := "SKIP: minimum lot too large"
+    else
+        status := setupSide == 1 ? "REVIEW BUY - manual only" : "REVIEW SELL - manual only"
+
+plot(chartOK ? ema20 : na, "EMA20", color=color.rgb(0, 130, 170))
+plot(chartOK ? ema50 : na, "EMA50", color=color.rgb(200, 125, 0))
+plot(chartOK ? ema200 : na, "EMA200", color=color.gray, linewidth=2)
+plotshape(longSetup, title="Historical long setup, not a trade", style=shape.triangleup, location=location.belowbar, color=color.rgb(0, 130, 170), size=size.tiny)
+plotshape(shortSetup, title="Historical short setup, not a trade", style=shape.triangledown, location=location.abovebar, color=color.rgb(200, 125, 0), size=size.tiny)
+plot(barstate.islast and fresh ? entry : na, "Latest entry reference", color=color.blue, style=plot.style_circles, linewidth=3)
+plot(barstate.islast and fresh ? setupStop : na, "Latest stop", color=color.red, style=plot.style_circles, linewidth=3)
+plot(barstate.islast and fresh ? target : na, "Latest target (2R)", color=color.teal, style=plot.style_circles, linewidth=3)
+
+var table panel = table.new(position.bottom_right, 2, 9, bgcolor=color.new(color.black, 12), border_width=1)
+if barstate.islast
+    color panelColor = str.contains(status, "REVIEW") ? color.rgb(0, 100, 130) : color.rgb(75, 75, 75)
+    table.cell(panel, 0, 0, "Gold Cent Guard", text_color=color.white, text_size=size.small, bgcolor=panelColor)
+    table.cell(panel, 1, 0, "Research / manual", text_color=color.white, text_size=size.small, bgcolor=panelColor)
+    table.cell(panel, 0, 1, "Status", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 1, status, text_color=color.white, text_size=size.small)
+    table.cell(panel, 0, 2, mt5Quote > 0 ? "MT5 quote / SL" : "Chart ref / SL", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 2, fresh ? str.tostring(entry, format.mintick) + " / " + str.tostring(setupStop, format.mintick) : "-", text_color=color.white, text_size=size.small)
+    table.cell(panel, 0, 3, "Target (2R)", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 3, fresh and stopOK ? str.tostring(target, format.mintick) : "-", text_color=color.white, text_size=size.small)
+    table.cell(panel, 0, 4, "Cent lots / loss est.", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 4, fresh and stopOK ? (lots >= 0.01 ? str.tostring(lots, "0.00") + " / " + money(riskUSD) : "Minimum size exceeds budget") : "-", text_color=color.white, text_size=size.small)
+    table.cell(panel, 0, 5, "Budget / equity", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 5, money(budgetUSD) + " / $" + str.tostring(equityUSC / 100, "0.00"), text_color=color.white, text_size=size.small)
+    table.cell(panel, 0, 6, "Setup closed (KH)", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 6, not na(setupClosed) ? str.format_time(setupClosed, "MM-dd HH:mm", "Asia/Phnom_Penh") + (fresh ? " (fresh)" : " (expired)") : "-", text_color=color.white, text_size=size.small)
+    table.cell(panel, 0, 7, "Chart feed", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 7, syminfo.tickerid + " | not Exness", text_color=color.white, text_size=size.small)
+    table.cell(panel, 0, 8, "Before any trade", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 8, "Verify MT5 SL, margin, size", text_color=color.white, text_size=size.small)

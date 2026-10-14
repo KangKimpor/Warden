@@ -1,0 +1,207 @@
+{
+  "source": "C:\\Users\\jpkim\\OneDrive\\SB Documents\\SH Data",
+  "inventory": [
+    {
+      "file": "messages.html",
+      "sha256": "c376f5b017e0ad10d860d11b0333e0a2b1ccddde31f7fd426611920fd531cbda",
+      "messages": 994
+    },
+    {
+      "file": "messages2.html",
+      "sha256": "1be4dd9b9d6e60f39dd0f300d8ee918f7163cbaa2bd11b47392dbffb8f16ac9a",
+      "messages": 998
+    },
+    {
+      "file": "messages3.html",
+      "sha256": "88f96810f7af74db132eea0ad324eb11b292bf9e7c89ec51ba919b7424f6ddd1",
+      "messages": 998
+    },
+    {
+      "file": "messages4.html",
+      "sha256": "fe079d51501939229f7f4b12e1a72e4bbf13cf3251571d31f766b78720dbde75",
+      "messages": 996
+    },
+    {
+      "file": "messages5.html",
+      "sha256": "5ebfee7af67f009647f612192df252142bdc3ab9a5b89b0b716423c5e51857df",
+      "messages": 1000
+    },
+    {
+      "file": "messages6.html",
+      "sha256": "792de918a09d85080384455d6baf518164938d5b1c93545ffc37823b65f9b0a7",
+      "messages": 425
+    }
+  ],
+  "total_messages": 5411,
+  "first": "2026-05-05T20:04:58+07:00",
+  "last": "2026-10-09T19:56:50+07:00",
+  "text_messages": 3798,
+  "media_messages": 3381,
+  "candidates": 359,
+  "complete": 359,
+  "valid": 357,
+  "invalid_complete": [
+    4895,
+    5106
+  ],
+  "reply_tp_mentions": 19,
+  "reply_sl_mentions": 5,
+  "no_direct_reply": 325,
+  "explicit_gold": 54,
+  "unspecified": 305,
+  "review_flags": {
+    "2432": [
+      "unusual_first_target_check_source"
+    ],
+    "3433": [
+      "unusual_first_target_check_source"
+    ],
+    "4235": [
+      "parenthetical_target_not_parsed"
+    ],
+    "4774": [
+      "unusually_wide_stop_check_source"
+    ],
+    "4895": [
+      "price_order_or_abbreviated_range",
+      "parenthetical_target_not_parsed"
+    ],
+    "4909": [
+      "parenthetical_target_not_parsed"
+    ],
+    "5106": [
+      "price_order_or_abbreviated_range"
+    ]
+  },
+  "entry_ranges": 17,
+  "multiple_targets": 348,
+  "rr": {
+    "min": 0.04716981132075472,
+    "median": 1.0,
+    "max": 7.666666666666667
+  },
+  "rr_final": {
+    "min": 0.09433962264150944,
+    "median": 1.8571428571428572,
+    "max": 9.5
+  },
+  "risk": {
+    "min": 2.0,
+    "median": 15.0,
+    "max": 212.0
+  },
+  "reward": {
+    "min": 3.0,
+    "median": 15.0,
+    "max": 115.0
+  },
+  "explicit_rr": {
+    "min": 0.6,
+    "median": 1.0,
+    "max": 1.3
+  },
+  "explicit_risk": {
+    "min": 5.0,
+    "median": 12.0,
+    "max": 30.0
+  },
+  "explicit_rr_final": {
+    "min": 1.0,
+    "median": 2.0,
+    "max": 6.0
+  },
+  "valid_sides": {
+    "sell": 241,
+    "buy": 116
+  },
+  "valid_hours": {
+    "0": 3,
+    "1": 5,
+    "2": 1,
+    "5": 7,
+    "6": 5,
+    "7": 4,
+    "8": 6,
+    "9": 7,
+    "10": 10,
+    "11": 6,
+    "12": 18,
+    "13": 21,
+    "14": 16,
+    "15": 23,
+    "16": 21,
+    "17": 16,
+    "18": 22,
+    "19": 39,
+    "20": 38,
+    "21": 38,
+    "22": 28,
+    "23": 23
+  },
+  "monthly": [
+    {
+      "month": "2026-05",
+      "messages": 346,
+      "explicit_gold": 37,
+      "candidates": 39,
+      "valid": 39,
+      "buys": 20,
+      "sells": 19
+    },
+    {
+      "month": "2026-06",
+      "messages": 1330,
+      "explicit_gold": 15,
+      "candidates": 75,
+      "valid": 75,
+      "buys": 18,
+      "sells": 57
+    },
+    {
+      "month": "2026-07",
+      "messages": 1271,
+      "explicit_gold": 2,
+      "candidates": 77,
+      "valid": 77,
+      "buys": 18,
+      "sells": 59
+    },
+    {
+      "month": "2026-08",
+      "messages": 1027,
+      "explicit_gold": 0,
+      "candidates": 68,
+      "valid": 68,
+      "buys": 23,
+      "sells": 45
+    },
+    {
+      "month": "2026-09",
+      "messages": 1144,
+      "explicit_gold": 0,
+      "candidates": 82,
+      "valid": 80,
+      "buys": 29,
+      "sells": 53
+    },
+    {
+      "month": "2026-10",
+      "messages": 293,
+      "explicit_gold": 0,
+      "candidates": 18,
+      "valid": 18,
+      "buys": 9,
+      "sells": 9
+    }
+  ],
+  "orphan_replies": 2,
+  "repeated_valid_templates": 18,
+  "media_inventory": {
+    ".jpg": 3840,
+    ".mp4": 16,
+    ".mov": 1,
+    ".webm": 75,
+    ".ogg": 1340,
+    ".mp3": 2
+  }
+}

@@ -1,0 +1,165 @@
+//@version=6
+strategy("SH Gold Signals v2", shorttitle="SH Gold Signals", overlay=true, behind_chart=false, initial_capital=10, currency=currency.USD, pyramiding=0, commission_type=strategy.commission.cash_per_contract, commission_value=0.25, margin_long=0.05, margin_short=0.05, max_labels_count=150, max_lines_count=8)
+
+equityUSC = input.float(1000, "My equity (USC) - sizing display only", minval=0)
+costReserve = input.float(0.50, "Cost allowance ($ per ounce)", minval=0.01)
+
+sizeFor(float distance, float budget, float costs) =>
+    distance > 0 and budget > 0 ? math.floor((budget / (distance + costs) + 0.000000001) / 0.01) * 0.01 : 0.0
+
+budgetFor(float equityUSD, float usedLoss) =>
+    math.max(0, math.min(0.10, equityUSD * 0.01, equityUSD - 5, 0.20 - usedLoss))
+
+inSession(int stamp) =>
+    int weekday = dayofweek(stamp, "Asia/Phnom_Penh")
+    int localHour = hour(stamp, "Asia/Phnom_Penh")
+    weekday >= dayofweek.monday and weekday <= dayofweek.friday and localHour >= 14 and localHour < 23
+
+zoneUsable(int age, float bottom, float top, float candleClose, int side) =>
+    age > 0 and age <= 32 and bottom < top and (side == 1 ? candleClose >= bottom : candleClose <= top)
+
+touches(float candleLow, float candleHigh, float bottom, float top) =>
+    candleLow <= top and candleHigh >= bottom
+
+if barstate.isfirst
+    bool sizeOK = sizeFor(5, 0.10, 0.50) == 0.01 and sizeFor(12, 0.10, 0.50) == 0 and sizeFor(0, 0.10, 0.50) == 0
+    bool budgetOK = budgetFor(5, 0) == 0 and math.abs(budgetFor(10, 0) - 0.10) < 0.000001 and math.abs(budgetFor(9, 0.19) - 0.01) < 0.000001
+    bool zonesOK = zoneUsable(1, 100, 102, 103, 1) and not zoneUsable(0, 100, 102, 103, 1) and not zoneUsable(33, 100, 102, 103, 1) and not zoneUsable(1, 100, 102, 99, 1) and not zoneUsable(1, 100, 102, 103, -1) and touches(101, 104, 100, 102) and not touches(103, 104, 100, 102)
+    bool sessionOK = inSession(timestamp("Asia/Phnom_Penh", 2026, 10, 16, 14, 0)) and not inSession(timestamp("Asia/Phnom_Penh", 2026, 10, 16, 23, 0)) and not inSession(timestamp("Asia/Phnom_Penh", 2026, 10, 17, 14, 0))
+    if not (sizeOK and budgetOK and zonesOK and sessionOK)
+        runtime.error("SH Gold sizing/zone/session self-check failed")
+
+ema20 = ta.ema(close, 20)
+ema50 = ta.ema(close, 50)
+ema200 = ta.ema(close, 200)
+atr = ta.atr(14)
+longTrend = ema20 > ema50 and ema50 > ema200 and ema50 > ema50[1]
+shortTrend = ema20 < ema50 and ema50 < ema200 and ema50 < ema50[1]
+chartOK = str.contains(str.upper(syminfo.ticker), "XAUUSD") and not str.contains(syminfo.ticker, "247") and syminfo.currency == "USD" and timeframe.isminutes and timeframe.multiplier == 15 and chart.is_standard
+ready = chartOK and bar_index >= 200 and barstate.isconfirmed
+
+var float bullBottom = na
+var float bullTop = na
+var int bullBar = na
+var float bearBottom = na
+var float bearTop = na
+var int bearBar = na
+bool buy = false
+bool sell = false
+float signalStop = na
+
+// Only the newest zone of each direction is retained; the first retest consumes it.
+if ready
+    if not na(bullBar)
+        if not zoneUsable(bar_index - bullBar, bullBottom, bullTop, close, 1)
+            bullBar := na
+        else if touches(low, high, bullBottom, bullTop)
+            buy := longTrend and inSession(time_close) and close > open and close > bullTop and close > ema20 and close > high[1]
+            signalStop := math.floor((math.min(low, bullBottom) - 0.2 * atr) / syminfo.mintick) * syminfo.mintick
+            bullBar := na
+    if not na(bearBar)
+        if not zoneUsable(bar_index - bearBar, bearBottom, bearTop, close, -1)
+            bearBar := na
+        else if touches(low, high, bearBottom, bearTop)
+            sell := shortTrend and inSession(time_close) and close < open and close < bearBottom and close < ema20 and close < low[1]
+            if sell
+                signalStop := math.ceil((math.max(high, bearTop) + 0.2 * atr) / syminfo.mintick) * syminfo.mintick
+            bearBar := na
+    if low - high[2] >= 0.1 * atr and close[1] > open[1] and longTrend
+        bullBottom := high[2]
+        bullTop := low
+        bullBar := bar_index
+    if low[2] - high >= 0.1 * atr and close[1] < open[1] and shortTrend
+        bearBottom := high
+        bearTop := low[2]
+        bearBar := bar_index
+
+var int lastTime = na
+var int lastBar = na
+var int lastSide = 0
+var float lastEntry = na
+var float lastStop = na
+var float lastTP1 = na
+var float lastTP2 = na
+var int setupCount = 0
+var array<line> levels = array.new<line>()
+if buy or sell
+    setupCount += 1
+    lastSide := buy ? 1 : -1
+    lastTime := time_close
+    lastBar := bar_index
+    lastEntry := close
+    lastStop := signalStop
+    float distance = math.abs(lastEntry - lastStop)
+    lastTP1 := math.round_to_mintick(lastEntry + lastSide * distance)
+    lastTP2 := math.round_to_mintick(lastEntry + lastSide * 2 * distance)
+    log.info("SH candidate: side {0}, entry {1}, SL {2}, distance {3}, size for $10 {4}", lastSide, lastEntry, lastStop, distance, sizeFor(distance, 0.10, 0.50))
+    label.new(bar_index, buy ? low : high, buy ? "BUY" : "SELL", style=buy ? label.style_label_up : label.style_label_down, color=buy ? color.teal : color.red, textcolor=color.white, size=size.small, tooltip="Technical candidate. Entry " + str.tostring(lastEntry, format.mintick) + " | SL " + str.tostring(lastStop, format.mintick) + " | TP1 " + str.tostring(lastTP1, format.mintick) + " | TP2 " + str.tostring(lastTP2, format.mintick))
+    for oldLine in levels
+        line.delete(oldLine)
+    array.clear(levels)
+    array.push(levels, line.new(bar_index, lastEntry, bar_index + 1, lastEntry, color=color.blue, width=2))
+    array.push(levels, line.new(bar_index, lastStop, bar_index + 1, lastStop, color=color.red, width=2))
+    array.push(levels, line.new(bar_index, lastTP1, bar_index + 1, lastTP1, color=color.new(color.teal, 45), style=line.style_dashed))
+    array.push(levels, line.new(bar_index, lastTP2, bar_index + 1, lastTP2, color=color.teal, width=2))
+
+// Simulated orders only. The visual candidates do not read or enforce Exness limits.
+var int pendingBar = na
+var int sessionDay = na
+var float dailyLoss = 0
+var int dailyOrders = 0
+var int seenTrades = 0
+int localDay = year(time_close, "Asia/Phnom_Penh") * 10000 + month(time_close, "Asia/Phnom_Penh") * 100 + dayofmonth(time_close, "Asia/Phnom_Penh")
+if barstate.isconfirmed
+    if na(sessionDay) or localDay != sessionDay
+        sessionDay := localDay
+        dailyLoss := 0
+        dailyOrders := 0
+    if strategy.closedtrades > seenTrades
+        for tradeIndex = seenTrades to strategy.closedtrades - 1
+            int exited = strategy.closedtrades.exit_time(tradeIndex)
+            int exitDay = year(exited, "Asia/Phnom_Penh") * 10000 + month(exited, "Asia/Phnom_Penh") * 100 + dayofmonth(exited, "Asia/Phnom_Penh")
+            if exitDay == localDay
+                dailyLoss += math.max(0, -strategy.closedtrades.profit(tradeIndex))
+        seenTrades := strategy.closedtrades
+    if not na(pendingBar) and bar_index > pendingBar
+        strategy.cancel("SH Buy")
+        strategy.cancel("SH Sell")
+        pendingBar := na
+    if (buy or sell) and strategy.position_size == 0 and na(pendingBar) and dailyOrders < 2 and syminfo.pointvalue == 1
+        float simulatedBudget = budgetFor(strategy.equity, dailyLoss)
+        float quantity = sizeFor(math.abs(close - signalStop), simulatedBudget, math.max(costReserve, 0.50))
+        if quantity >= 0.01 and hour(time_close, "Asia/Phnom_Penh") < 23
+            if buy
+                strategy.entry("SH Buy", strategy.long, qty=quantity, limit=close)
+                strategy.exit("Buy SL/TP2", "SH Buy", stop=signalStop, limit=lastTP2)
+            else
+                strategy.entry("SH Sell", strategy.short, qty=quantity, limit=close)
+                strategy.exit("Sell SL/TP2", "SH Sell", stop=signalStop, limit=lastTP2)
+            pendingBar := bar_index
+            dailyOrders += 1
+
+distance = math.abs(lastEntry - lastStop)
+manualBudget = budgetFor(equityUSC / 100, 0)
+manualLots = sizeFor(nz(distance), manualBudget, costReserve)
+fresh = not na(lastTime) and timenow >= lastTime and timenow < lastTime + 15 * 60 * 1000 and inSession(timenow)
+price(float value) =>
+    na(value) ? "-" : str.tostring(value, format.mintick)
+var table panel = table.new(position.bottom_right, 2, 6, bgcolor=color.rgb(24, 28, 34), border_width=1)
+if barstate.islastconfirmedhistory or barstate.islast
+    string heading = not chartOK ? "Use XAUUSD 15m candles" : na(lastTime) ? "WAIT: no setup" : (lastSide == 1 ? "BUY" : "SELL") + (fresh ? " - REVIEW" : " - EXPIRED")
+    color headingColor = fresh and chartOK ? (lastSide == 1 ? color.teal : color.red) : color.rgb(65, 65, 65)
+    table.cell(panel, 0, 0, "SH Gold", text_color=color.white, text_size=size.small, bgcolor=headingColor)
+    table.cell(panel, 1, 0, heading, text_color=color.white, text_size=size.small, bgcolor=headingColor)
+    table.cell(panel, 0, 1, "Entry limit", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 1, chartOK ? price(lastEntry) : "-", text_color=color.aqua, text_size=size.small)
+    table.cell(panel, 0, 2, "SL", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 2, chartOK ? price(lastStop) : "-", text_color=color.rgb(255, 110, 110), text_size=size.small)
+    table.cell(panel, 0, 3, "TP1 / TP2", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 3, chartOK ? price(lastTP1) + " / " + price(lastTP2) : "-", text_color=color.rgb(70, 220, 170), text_size=size.small)
+    string sizing = equityUSC <= 500 ? "STOP: equity <= 500 USC" : na(lastTime) or not chartOK ? "-" : manualLots < 0.01 ? "SKIP: minimum lot too large" : str.tostring(manualLots, "0.00") + " cent lot | ~" + str.tostring(manualLots * (distance + costReserve) * 100, "0.0") + " USC risk"
+    table.cell(panel, 0, 4, "Size guide", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 4, sizing, text_color=color.white, text_size=size.small)
+    table.cell(panel, 0, 5, "KH time", text_color=color.white, text_size=size.small)
+    table.cell(panel, 1, 5, not na(lastTime) and chartOK ? str.format_time(lastTime, "MM-dd HH:mm", "Asia/Phnom_Penh") : "-", text_color=color.silver, text_size=size.small)
+    log.info("SH diagnostic: candidates {0}, point value {1}, min contract {2}, chart OK {3}", setupCount, syminfo.pointvalue, syminfo.mincontract, chartOK)
