@@ -147,7 +147,10 @@ export function runV7(bars, tfMin, now, options = {}) {
       const distTicks = Math.max(1, Math.ceil(atrs[i] * o.stopATR / o.mintick));
       pendingDistance = distTicks * o.mintick;
       pendingReward = Math.max(1, Math.round(distTicks * o.targetR)) * o.mintick;
-      events.push({ type: 'signal', side, close: b.c, distance: pendingDistance, reward: pendingReward, t: b.t });
+      events.push({
+        type: 'signal', side, close: b.c, distance: pendingDistance, reward: pendingReward, t: b.t,
+        level: side === 1 ? upper : lower, fast: fast[i], slow: slow[i], atr: atrs[i],
+      });
     }
   }
 
@@ -165,7 +168,8 @@ export function formatEvent(ev, { tfMin, tickerid, mintick, now }) {
   };
   if (ev.type === 'signal') {
     return `${ev.side === 1 ? 'BUY' : 'SELL'} SETUP | ${tickerid} ${tfMin}m | v7 breakout confirmed at candle close ${fx(ev.close)}. Wait for the next candle open for the entry.
-Planned SL distance ${fx(ev.distance)}, TP distance ${fx(ev.reward)}. The entry alert with exact levels follows.`;
+Planned SL distance ${fx(ev.distance)}, TP distance ${fx(ev.reward)}. The entry alert with exact levels follows.
+Check vs chart: close ${fx(ev.close)} ${ev.side === 1 ? '>' : '<'} 24-candle ${ev.side === 1 ? 'high' : 'low'} ${fx(ev.level)} | EMA50 ${fx(ev.fast)} | EMA200 ${fx(ev.slow)} | ATR14 ${fx(ev.atr)}`;
   }
   if (ev.type === 'entry') {
     const ageMin = Math.max(0, Math.floor((now - ev.t) / 60000));

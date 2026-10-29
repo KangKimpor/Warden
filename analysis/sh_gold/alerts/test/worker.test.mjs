@@ -59,6 +59,7 @@ test('sends one BUY alert after the entry candle opens, then dedupes', async () 
   await tick(env, now);
   assert.equal(sent.length, 2);
   assert.match(sent[0], /^BUY SETUP \| XAU\/USD \(Twelve Data\) 15m/);
+  assert.match(sent[0], /Check vs chart: close [\d.]+ > 24-candle high [\d.]+ \| EMA50 [\d.]+ \| EMA200 [\d.]+ \| ATR14 [\d.]+/);
   sent.shift();
   assert.equal(sent.length, 1);
   assert.match(sent[0], /^BUY \| XAU\/USD \(Twelve Data\) 15m \| Chart entry 1053\.000 \| SL \d+\.\d{3} \| TP \d+\.\d{3}/);
