@@ -1,0 +1,20 @@
+name = "gold-entry-v7-alerts"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+workers_dev = false
+
+[triggers]
+# Every 5 minutes at :01, :06, ... so a fresh candle exists when the poll runs. Sunday-Friday UTC.
+crons = ["1-56/5 * * * SUN-FRI"]
+
+[[kv_namespaces]]
+binding = "STATE"
+id = "245d3b6b79574f788cbeaacea799e470"
+
+[vars]
+SYMBOL = "XAU/USD"
+# Same default as the indicator: all market hours. Set "true" for 14:00-23:00 Cambodia weekdays only.
+SESSION_ONLY = "false"
+# OANDA XAUUSD shows 3 decimals on TradingView, so 0.001.
+MINTICK = "0.001"
+DRY_RUN = "false"

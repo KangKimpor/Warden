@@ -1,0 +1,117 @@
+//@version=6
+indicator("Gold Entry v7 - M15 / H1", shorttitle="Gold Entry v7", overlay=true, max_labels_count=100)
+
+lookback = input.int(24, "Breakout lookback", minval=2)
+stopATR = input.float(1.5, "SL / ATR(14)", minval=0.1, step=0.1)
+targetR = input.float(2, "TP / stop distance", minval=0.1, step=0.1)
+entryMinutes = input.int(5, "Entry window after next open (minutes)", minval=1, maxval=60)
+sessionOnly = input.bool(false, "Signals only 14:00-23:00 Cambodia weekdays")
+holdBars = input.int(24, "Plan lifetime (chart bars)", minval=1)
+
+inSession(int stamp) =>
+    int day = dayofweek(stamp, "Asia/Phnom_Penh")
+    int h = hour(stamp, "Asia/Phnom_Penh")
+    day >= dayofweek.monday and day <= dayofweek.friday and h >= 14 and h < 23
+
+breakout(float c, float upper, float lower, float fast, float slow) =>
+    c > upper and fast > slow ? 1 : c < lower and fast < slow ? -1 : 0
+
+levels(float entry, float distance, float reward, int side) =>
+    [entry - side * distance, entry + side * reward]
+
+timeDue(int age, int maximum, bool confirmed) =>
+    confirmed and age >= maximum
+
+canSignal(bool active, bool pending) =>
+    not active and not pending
+
+if barstate.isfirst
+    [slLong, tpLong] = levels(100, 3, 6, 1)
+    [slShort, tpShort] = levels(100, 3, 6, -1)
+    bool checks = slLong == 97 and tpLong == 106 and slShort == 103 and tpShort == 94 and breakout(105, 104, 95, 102, 100) == 1 and breakout(94, 104, 95, 98, 100) == -1 and breakout(104, 104, 95, 102, 100) == 0 and breakout(105, 104, 95, 98, 100) == 0
+    bool timingOK = not timeDue(23, 24, true) and timeDue(24, 24, true) and not timeDue(24, 24, false) and timeDue(1, 1, true)
+    bool singlePlanOK = canSignal(false, false) and not canSignal(true, false) and not canSignal(false, true)
+    if not (checks and timingOK and singlePlanOK)
+        runtime.error("Entry/SL/TP self-check failed")
+    if not (chart.is_standard and timeframe.isminutes and (timeframe.multiplier == 15 or timeframe.multiplier == 60) and str.contains(str.upper(syminfo.ticker), "XAUUSD") and not str.contains(syminfo.ticker, "247") and syminfo.currency == "USD")
+        runtime.error("Use XAUUSD standard candles on 15m or 1h")
+
+upper = ta.highest(high, lookback)[1]
+lower = ta.lowest(low, lookback)[1]
+fast = ta.ema(close, 50)
+slow = ta.ema(close, 200)
+atr = ta.atr(14)
+side = breakout(close, upper, lower, fast, slow)
+
+var int planSide = 0
+var int entryBar = na
+var int entryTime = na
+var float entry = na
+var float distance = na
+var float reward = na
+var bool touched = false
+var label latestLabel = na
+var bool active = false
+var bool pending = false
+var int pendingSide = 0
+var float pendingDistance = na
+var float pendingReward = na
+var string ended = "WAIT for confirmed breakout"
+
+// Re-evaluate on every tick: Pine rolls ordinary variables back until the bar closes.
+if pending
+    planSide := pendingSide
+    entryBar := bar_index
+    entryTime := time
+    entry := open
+    distance := pendingDistance
+    reward := pendingReward
+    touched := false
+    active := true
+    pending := false
+    [labelSL, labelTP] = levels(entry, distance, reward, planSide)
+    label.delete(latestLabel)
+    latestLabel := label.new(bar_index, entry, (planSide == 1 ? "BUY PLAN" : "SELL PLAN") + " @ " + str.tostring(entry, format.mintick) + "\nSL " + str.tostring(labelSL, format.mintick) + "\nTP " + str.tostring(labelTP, format.mintick), style=planSide == 1 ? label.style_label_up : label.style_label_down, color=planSide == 1 ?  color.teal :  color.red, textcolor= color.white, size=size.small)
+    alert((planSide == 1 ? "BUY" : "SELL") + " | " + syminfo.tickerid + " " + timeframe.period + "m | Chart entry " + str.tostring(entry, format.mintick) + " | SL " + str.tostring(labelSL, format.mintick) + " | TP " + str.tostring(labelTP, format.mintick) + " | Anchor distances to your MT5 fill. Ignore if already in a position or late.", alert.freq_once_per_bar)
+
+[stop, target] = levels(entry, distance, reward, planSide)
+bool stopHit = active and (planSide == 1 ? low <= stop : high >= stop)
+bool targetHit = active and (planSide == 1 ? high >= target : low <= target)
+bool timeExit = active and timeDue(bar_index - entryBar + 1, holdBars, barstate.isconfirmed)
+if active and (stopHit or targetHit or timeExit)
+    active := false
+    touched := stopHit or targetHit
+    ended := stopHit and targetHit ? "SL + TP touched: order unknown" : stopHit ? "SL touched: plan ended" : targetHit ? "TP touched: plan ended" : "Time exit: close remaining trade"
+    alert(ended + " | " + syminfo.tickerid + " | Check your actual MT5 position.", alert.freq_once_per_bar)
+bool signal = barstate.isconfirmed and bar_index >= math.max(200, lookback) and not na(atr) and atr > 0 and side != 0 and canSignal(active, pending) and (not sessionOnly or inSession(time_close))
+if signal
+    pending := true
+    pendingSide := side
+    pendingDistance := math.max(1, math.ceil(atr * stopATR / syminfo.mintick)) * syminfo.mintick
+    pendingReward := math.max(1, math.round(pendingDistance / syminfo.mintick * targetR)) * syminfo.mintick
+bool fresh = active and not na(entryTime) and bar_index == entryBar and timenow >= entryTime and timenow < entryTime + entryMinutes * 60000 and not touched
+bool showLevels = active
+string status = signal ? (side == 1 ? "BUY: wait for next candle open" : "SELL: wait for next candle open") : not active ? ended : fresh ? (planSide == 1 ? "BUY near chart open" : "SELL near chart open") : "Plan active: no additional entry"
+
+plot(fast, "EMA50", color= color.orange)
+plot(slow, "EMA200", color= color.gray)
+plot(showLevels ? entry : na, "Entry", color= color.aqua, linewidth=2, style=plot.style_linebr)
+plot(showLevels ? stop : na, "SL", color= color.red, linewidth=2, style=plot.style_linebr)
+plot(showLevels ? target : na, "TP", color= color.teal, linewidth=2, style=plot.style_linebr)
+plotshape(signal and side == 1, "Confirmed buy setup", shape.triangleup, location.belowbar,  color.teal, size=size.tiny)
+plotshape(signal and side == -1, "Confirmed sell setup", shape.triangledown, location.abovebar,  color.red, size=size.tiny)
+
+var table panel = table.new(position.bottom_right, 2, 6, bgcolor= color.rgb(24, 28, 34))
+if barstate.islast
+    table.cell(panel, 0, 0, "Gold Entry v7 | " + timeframe.period + "m", text_color= color.white)
+    table.cell(panel, 1, 0, status, text_color=fresh ?  color.aqua :  color.white)
+    table.cell(panel, 0, 1, "Chart entry", text_color= color.white)
+    table.cell(panel, 1, 1, showLevels ? str.tostring(entry, format.mintick) : "-", text_color= color.aqua)
+    table.cell(panel, 0, 2, "SL / TP", text_color= color.white)
+    table.cell(panel, 1, 2, showLevels ? str.tostring(stop, format.mintick) + " / " + str.tostring(target, format.mintick) : "-", text_color= color.white)
+    table.cell(panel, 0, 3, "Entry time (KH)", text_color= color.white)
+    table.cell(panel, 1, 3, not na(entryTime) ? str.format_time(entryTime, "MM-dd HH:mm", "Asia/Phnom_Penh") : "-", text_color= color.silver)
+    table.cell(panel, 0, 4, "Feed", text_color= color.white)
+    table.cell(panel, 1, 4, syminfo.tickerid + " | manual MT5", text_color= color.silver)
+    table.cell(panel, 0, 5, "Mode", text_color= color.white)
+    table.cell(panel, 1, 5, (sessionOnly ? "KH session" : "All market hours") + (timeframe.multiplier == 15 ? " | M15 experimental" : " | Research"), text_color=timeframe.multiplier == 15 ?  color.orange :  color.silver)

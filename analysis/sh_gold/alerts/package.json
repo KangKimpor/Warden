@@ -1,0 +1,13 @@
+{
+  "name": "gold-entry-v7-alerts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/v7.test.mjs test/worker.test.mjs",
+    "deploy": "wrangler deploy",
+    "dry": "wrangler dev --test-scheduled"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}
